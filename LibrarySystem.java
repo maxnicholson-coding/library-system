@@ -5,6 +5,7 @@ public class LibrarySystem
     public static Scanner input = new Scanner(System.in);
     public static Book recentLoanedBook;
     public static Student recentLoaner;
+    public static Loan recentLoan;
     public static void main(String[] args)
     {
         System.out.println("Welcome to the Library System.");
@@ -19,16 +20,18 @@ public class LibrarySystem
     }
     public static void libraryInput(Library library) { //takes an input and preforms the corresponding action
         while (true) {
-            System.out.println("Please make an input.");
+            System.out.println("\nPlease make an input.");
             String command = input.nextLine();
             if (command.equals("help")) {
-                System.out.println("List of commands: new book, register, loan, check, goodbye");
+                System.out.println("List of commands: new book, register, loan, return, check, goodbye");
             } else if (command.equals("new book")) {
                 createNewBook(library);
             } else if (command.equals("register")) {
                 registerStudent(library);
             } else if (command.equals("loan")) {
                 makeLoan(library);
+            } else if (command.equals("return")) {
+                returnBook(library);
             } else if (command.equals("check")) {
                 checkLibrary(library);
             } else if (command.equals("goodbye")) {
@@ -51,7 +54,7 @@ public class LibrarySystem
         //add book to the library
         Book book = new Book(bookName, bookAuthor, bookISBN);
         library.addBook(book);
-        System.out.println(bookname + " added to the library.");
+        System.out.println(bookName + " added to the library.");
     }
     public static void registerStudent(Library library) { //registers a new student to the library
         //get student info
@@ -63,7 +66,7 @@ public class LibrarySystem
         //registers student
         Student student = new Student(studentName, studentID);
         library.addStudent(student);
-        System.out.println(studentname + " registered to the library.");
+        System.out.println(studentName + " registered to the library.");
     }
     public static void makeLoan(Library library) { //loans out a book to a student
         //check if a loan is possible
@@ -89,6 +92,22 @@ public class LibrarySystem
             }
         } else {
             System.out.println("A loan is impossible");
+        }
+    }
+    public static void returnBook(Library library) { //returns a checked out book
+        //take inputted book
+        System.out.println("What book is getting returned");
+        String bookName = input.nextLine();
+        //find it in the library
+        if (isBookPresent(library, bookName)) {
+            if (findLoan(library, recentLoanedBook)) {
+                recentLoan.setStatus("Inactive");
+                recentLoanedBook.returnBook();
+            } else {
+                System.out.println("Loan not found.");
+            }
+        } else {
+            System.out.println("Book not found.");
         }
     }
     public static boolean checkBookAvailable(Library library, String book) { //checks if a book with a given name is availible
@@ -129,6 +148,31 @@ public class LibrarySystem
             canLoan = false;
         }
         return canLoan;
+    }
+    public static boolean isBookPresent(Library library, String bookName) { //checks if a book is in a library
+        for (int i = 0; i < library.allBooks.size(); i++) {
+            Book currentBook = library.allBooks.get(i);
+            //check if each book matches the requested one
+            if (bookName.equals(currentBook.getName())) {
+                //sets that to currentLoanedBook
+                recentLoanedBook = currentBook;
+                return true;
+            }
+        }
+        //returns false if no matches
+        return false;
+    }
+    public static boolean findLoan(Library library, Book book) { //finds what loan the book is a part
+        for (int i = 0; i < library.allLoans.size(); i++) {
+            Loan currentLoan = library.allLoans.get(i);
+            //checks if the loan is of the book
+            if ((currentLoan.getBook()).equals(book)) {
+                recentLoan = currentLoan;
+                return true;
+            }
+        }
+        //returns false if none found
+        return false;
     }
     public static void checkLibrary(Library library) { //displays all books, students, or loans at the library
         System.out.println();
