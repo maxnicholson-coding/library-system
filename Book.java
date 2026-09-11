@@ -9,16 +9,25 @@ public class Book {
         this.name = name;
         this.author = author;
         this.isbn = isbn;
-        status = "Checked Out";
+        status = "Available";
     }
     public void checkout() { //checks out the book
         status = "Checked Out";
     }
     public void returnBook() { //returns the book
-        status = "Availible";
+        status = "Available";
     }
     public String toString() { // displays all info about the book
         return ("Title: " + name + "\nAuthor: " + author + "\nISBN: " + isbn + "\nCurrent Status: " + status);
+    }
+    public String getName() { //returns the book's name
+        return name;
+    }
+    public String getAuthor() { //returns the book's author
+        return author;
+    }
+    public int getISBN() {
+        return isbn;
     }
     public String getStatus() { //returns the book's status
         return status;
