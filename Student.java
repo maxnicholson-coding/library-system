@@ -13,4 +13,7 @@ public class Student {
     public int getID() { // returns the student's ID number
         return studentID;
     }
+    public String toString() { //returns student's info
+        return ("Name: " + name + "\nID: " + studentID);
+    }
 }
