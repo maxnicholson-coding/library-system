@@ -9,7 +9,7 @@ public class Loan {
         status = "Active";
     }
     public String toString() { // describes the loan
-        return (student.getName() + " has loaned out " + book.getName() + ".\nThe status of the loan is currently " + status + ".");
+        return (student.getName() + " loaned out " + book.getName() + ".\nThe status of the loan is currently " + status + ".");
     }
     public Book getBook() { //returns the book being loaned
         return book;
