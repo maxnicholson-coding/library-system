@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.InputMismatchException;
 public class LibrarySystem
 {
     //initialize some helpful things; probably inefficient but it works
@@ -46,11 +47,18 @@ public class LibrarySystem
         //get book info
         System.out.println("What is this book's name?");
         String bookName = input.nextLine();
+        //checks if there is another book with the same name in the library
+        for (int i = 0; i < library.allBooks.size(); i++) {
+            Book currentBook = library.allBooks.get(i);
+            if (bookName.equals(currentBook.getName())) {
+                System.out.println("That book is already in the libary.");
+                return;
+            }
+        }
         System.out.println("What is this book's author?");
         String bookAuthor = input.nextLine();
         System.out.println("What is this book's ISBN?");
-        int bookISBN = input.nextInt();
-        input.nextLine();
+        int bookISBN = safeInputInt();
         //add book to the library
         Book book = new Book(bookName, bookAuthor, bookISBN);
         library.addBook(book);
@@ -60,13 +68,17 @@ public class LibrarySystem
         //get student info
         System.out.println("What is this student's name?");
         String studentName = input.nextLine();
-        System.out.println("What is this stuednt's ID number?");
-        int studentID = input.nextInt();
-        input.nextLine();
-        //registers student
-        Student student = new Student(studentName, studentID);
-        library.addStudent(student);
-        System.out.println(studentName + " registered to the library.");
+        System.out.println("What is this student's ID number?");
+        int studentID = safeInputInt();
+        //checks if a student with that ID is already registered
+        if (!(checkStudentRegister(library, studentID))) {
+            //registers student
+            Student student = new Student(studentName, studentID);
+            library.addStudent(student);
+            System.out.println(studentName + " registered to the library.");
+        } else {
+            System.out.println("A student with that ID is already registered.");
+        }
     }
     public static void makeLoan(Library library) { //loans out a book to a student
         //check if a loan is possible
@@ -78,8 +90,7 @@ public class LibrarySystem
             if (checkBookAvailable(library, loanedBook)) {
                 //take a student's ID
                 System.out.println("What is the ID of the student recieving the book?");
-                int loanerID = input.nextInt();
-                input.nextLine();
+                int loanerID = safeInputInt();
                 //if the ID matches, complete the loan
                 if (checkStudentRegister(library, loanerID)) {
                     library.checkoutBook(recentLoanedBook, recentLoaner);
@@ -91,18 +102,24 @@ public class LibrarySystem
                 System.out.println("Book not found.");
             }
         } else {
-            System.out.println("A loan is impossible");
+            System.out.println("A loan is impossible.");
         }
     }
     public static void returnBook(Library library) { //returns a checked out book
+        //checks if a book is currently loaned out and stops it if so
+        if (!(checkCanReturn(library))) {
+            System.out.println("No books are currently checked out.");
+            return;
+        }
         //take inputted book
-        System.out.println("What book is getting returned");
+        System.out.println("What book is getting returned?");
         String bookName = input.nextLine();
         //find it in the library
         if (isBookPresent(library, bookName)) {
-            if (findLoan(library, recentLoanedBook)) {
+            if (findLoan(library, recentLoanedBook) && recentLoanedBook.getStatus() == "Checked Out") {
                 recentLoan.setStatus("Inactive");
                 recentLoanedBook.returnBook();
+                System.out.println(recentLoanedBook.getName() + " successfully returned.");
             } else {
                 System.out.println("Loan not found.");
             }
@@ -149,6 +166,17 @@ public class LibrarySystem
         }
         return canLoan;
     }
+    public static boolean checkCanReturn(Library library) { //check is a book currently loaned out
+        boolean canReturn = false;
+        //check if the library has a checked out book
+        for (int i = 0; i < library.allBooks.size(); i++) {
+            Book currentBook = library.allBooks.get(i);
+            if (currentBook.getStatus().equals("Checked Out")) {
+                canReturn = true;
+            }
+        }
+        return canReturn;
+    }
     public static boolean isBookPresent(Library library, String bookName) { //checks if a book is in a library
         for (int i = 0; i < library.allBooks.size(); i++) {
             Book currentBook = library.allBooks.get(i);
@@ -192,6 +220,18 @@ public class LibrarySystem
                 break;
             } else {
                 System.out.println("Invalid input. Please type \"books\", \"students\" or \"loans\".");
+            }
+        }
+    }
+    public static int safeInputInt() { //takes an inputted integer without erroring at non-ints
+        while (true) {
+            try {
+                int userInput = input.nextInt();
+                input.nextLine();
+                return userInput;
+            } catch (InputMismatchException e) { //catch if input is not an int and continues the loop
+                System.out.println("Invalid");
+                input.nextLine();
             }
         }
     }
